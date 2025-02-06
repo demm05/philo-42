@@ -63,8 +63,10 @@ static int	init_mutexs(t_info *info)
 	{
 		info->philos[i].id = i;
 		info->philos[i].meals = 0;
-		info->philos[i].last_meal = 0;
+		//info->philos[i].last_meal = 0;
+		info->philos[i].time = 0;
 		info->philos[i].info = info;
+		info->philos[i].state = THINKING;
 		if (pthread_mutex_init(&info->philos[i].lock, NULL))
 		{
 			printf("Couldn't initialize mutex for %d philosopher\n", i + 1);

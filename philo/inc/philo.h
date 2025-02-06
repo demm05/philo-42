@@ -29,7 +29,7 @@ typedef struct s_philo
 	enum e_state	state;
 	int				id;
 	int				meals;
-	long			last_meal;
+	long			time;
 	t_info			*info;
 	pthread_t		thread;
 	pthread_mutex_t	lock;
@@ -50,11 +50,11 @@ typedef struct s_info
 	t_philo			*philos;
 }	t_info;
 
-int		init_phils(t_info *info);
+int		initialize(int argc, char **argv, t_info *info);
 int		create_phil(t_info *info);
+
 void	cleanup(t_info *info);
 long	elap_time(t_info *info);
-
-int		initialize(int argc, char **argv, t_info *info);
+void	my_sleep(int ms, t_philo *phil);
 
 #endif

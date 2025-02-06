@@ -13,10 +13,22 @@ void	cleanup(t_info *info)
 	free(info->philos);
 }
 
-long	elap_time(t_info *info)
+void	my_sleep(int ms, t_philo *phil)
 {
-	struct timeval	tv;
-
-	gettimeofday(&tv, NULL);
-	return (tv.tv_sec * 1000 + tv.tv_usec / 1000 - info->time);
+	if (ms < 0)
+		return ;
+	phil->time += ms;	
+	while (ms > 0)
+	{
+		if (ms > 1000)
+		{
+			usleep(1000 * 1000);
+			ms -= 1000;
+		}
+		else
+		{
+			usleep(ms * 1000);
+			break ;
+		}
+	}
 }
