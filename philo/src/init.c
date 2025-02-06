@@ -1,28 +1,56 @@
 #include "../inc/philo.h"
+#include <limits.h>
 #include <pthread.h>
+
+static inline int	parsa_ar(int *loc, char *ar)
+{
+	long	result;
+	int		sign;
+	char	*anch;
+
+	result = 0;
+	sign = 1;
+	anch = ar;
+	while (*ar == ' ' || (*ar >= 9 && *ar <= 13))
+		ar++;
+	while (*ar == '-' || *ar == '+')
+		if (*ar++ == '-')
+			sign *= -1;
+	if (sign == -1)
+		return (printf("Argument can't be negative\n"));
+	while (*ar >= '0' && *ar <= '9' && *ar)
+	{
+		result = result * 10 + (*ar++ - '0');
+		if (result > INT_MAX)
+			return (printf("Argument doesnt fit in int range\n"));
+	}
+	if (*ar)
+		return (printf("Only digits\n"));
+	if (ar != anch && result == 0)
+		return (printf("At least one digit\n"));
+	*loc = result;
+	return (0);
+}
 
 int	parse_argv(int argc, char **argv, t_info *info)
 {
 	if (argc < 5)
 	{
 		printf("Please provide more arguments\n");
+		return (1);
+	}
+	if (parsa_ar(&info->num, argv[1]) ||
+		parsa_ar(&info->t2d, argv[2]) ||
+		parsa_ar(&info->t2e, argv[3]) ||
+		parsa_ar(&info->t2s, argv[4]))
 		return (2);
-	}
-	info->num = ft_atoi(argv[1]);
-	info->t2d = ft_atoi(argv[2]) * 1000;
-	info->t2e = ft_atoi(argv[3]) * 1000;
-	info->t2s = ft_atoi(argv[4]) * 1000;
-	info->iter = -2;
 	if (argc == 6)
-		info->iter = ft_atoi(argv[5]);
-	if (info->num <= 0 || info->t2d <= 0 || info->t2e <= 0 || \
-		info->t2s <= 0 || info->iter == -1)
 	{
-		printf("Invalid argument\n");
-		return (3);
+		if (parsa_ar(&info->iter, argv[5]))
+			return (2);
 	}
-	if (info->iter > 0)
-		info->iter *= 1000;
+	else
+		info->iter = -1;
 	return (0);
 }
 

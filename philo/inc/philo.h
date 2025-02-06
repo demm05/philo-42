@@ -52,6 +52,8 @@ typedef struct s_info
 }	t_info;
 
 int		ft_atoi(const char *nptr);
+int		is_strnbr(const char *str);
+
 int		parse_argv(int argc, char **argv, t_info *info);
 int		init_phils(t_info *info);
 int		create_phil(t_info *info);
