@@ -20,7 +20,8 @@ enum	e_state
 {
 	HUNGRY,
 	EATING,
-	THINKING
+	THINKING,
+	SLEEPING
 };
 
 typedef struct s_philo

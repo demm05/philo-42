@@ -42,14 +42,14 @@ int	init_phils(t_info *info)
 	i = 0;
 	while (i < info->num)
 	{
-		info->philos[i].id = i + 1;
+		info->philos[i].id = i;
 		info->philos[i].meals = 0;
 		info->philos[i].state = THINKING;
 		info->philos[i].info = info;
 		info->philos[i].last_meal = 0;
 		if (pthread_mutex_init(&info->philos[i].lock, NULL) || pthread_mutex_init(&info->philos[i].state_lock, NULL))
 		{
-			printf("Couldn't initialize mutex for %d philosopher\n", i);
+			printf("Couldn't initialize mutex for %d philosopher\n", i + 1);
 			while (i--)
 				pthread_mutex_destroy(&info->philos[i].lock);
 			free(info->philos);
