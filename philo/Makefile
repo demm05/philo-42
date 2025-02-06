@@ -3,7 +3,7 @@ SDIR				=	src
 ODIR				=	obj
 
 CC					=	gcc
-CFLAGS				=	-g -Wall -Wextra -O0 -I$(HDIR)
+CFLAGS				=	-g -Wall -Wextra -I$(HDIR)
 
 NAME				=	philo
 

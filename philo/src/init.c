@@ -9,9 +9,9 @@ int	parse_argv(int argc, char **argv, t_info *info)
 		return (2);
 	}
 	info->num = ft_atoi(argv[1]);
-	info->t2d = ft_atoi(argv[2]);
-	info->t2e = ft_atoi(argv[3]);
-	info->t2s = ft_atoi(argv[4]);
+	info->t2d = ft_atoi(argv[2]) * 1000;
+	info->t2e = ft_atoi(argv[3]) * 1000;
+	info->t2s = ft_atoi(argv[4]) * 1000;
 	info->iter = -2;
 	if (argc == 6)
 		info->iter = ft_atoi(argv[5]);
@@ -21,8 +21,11 @@ int	parse_argv(int argc, char **argv, t_info *info)
 		printf("Invalid argument\n");
 		return (3);
 	}
+	if (info->iter > 0)
+		info->iter *= 1000;
 	return (0);
 }
+
 
 int	init_phils(t_info *info)
 {
@@ -31,17 +34,24 @@ int	init_phils(t_info *info)
 	info->philos = malloc(sizeof(t_philo) * info->num);
 	if (!info->philos)
 		return (1);
+	if (pthread_mutex_init(&info->lock, NULL))
+	{
+		printf("Couldn't initialize mutex for %d philosopher\n", i);
+		return (1);
+	}
 	i = 0;
 	while (i < info->num)
 	{
 		info->philos[i].id = i + 1;
-		info->philos[i].meal = 0;
+		info->philos[i].meals = 0;
+		info->philos[i].state = THINKING;
 		info->philos[i].info = info;
-		if (pthread_mutex_init(&info->philos[i].fork, NULL) != 0)
+		info->philos[i].last_meal = 0;
+		if (pthread_mutex_init(&info->philos[i].lock, NULL) || pthread_mutex_init(&info->philos[i].state_lock, NULL))
 		{
 			printf("Couldn't initialize mutex for %d philosopher\n", i);
 			while (i--)
-				pthread_mutex_destroy(&info->philos[i].fork);
+				pthread_mutex_destroy(&info->philos[i].lock);
 			free(info->philos);
 			return (1);
 		}
