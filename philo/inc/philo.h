@@ -33,7 +33,6 @@ typedef struct s_philo
 	t_info			*info;
 	pthread_t		thread;
 	pthread_mutex_t	lock;
-	pthread_mutex_t	state_lock;
 }	t_philo;
 
 
@@ -51,13 +50,11 @@ typedef struct s_info
 	t_philo			*philos;
 }	t_info;
 
-int		ft_atoi(const char *nptr);
-int		is_strnbr(const char *str);
-
-int		parse_argv(int argc, char **argv, t_info *info);
 int		init_phils(t_info *info);
 int		create_phil(t_info *info);
 void	cleanup(t_info *info);
 long	elap_time(t_info *info);
+
+int		initialize(int argc, char **argv, t_info *info);
 
 #endif

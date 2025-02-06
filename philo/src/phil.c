@@ -6,15 +6,15 @@ enum e_state	get_state(t_info *info, int id)
 {
 	enum e_state	r;
 
-	pthread_mutex_lock(&info->philos[id].state_lock);
+	pthread_mutex_lock(&info->philos[id].lock);
 	r = info->philos[id].state;
-	pthread_mutex_unlock(&info->philos[id].state_lock);
+	pthread_mutex_unlock(&info->philos[id].lock);
 	return (r);
 }
 
 void	set_state(t_info *info, int id, enum e_state state)
 {
-	pthread_mutex_lock(&info->philos[id].state_lock);
+	pthread_mutex_lock(&info->philos[id].lock);
 	if (state == EATING)
 		printf("%ld %d %s\n", elap_time(info), id + 1, EAT);
 	else if (state == THINKING)
@@ -22,7 +22,7 @@ void	set_state(t_info *info, int id, enum e_state state)
 	else if (state == SLEEPING)
 		printf("%ld %d %s\n", elap_time(info), id + 1, SLEEP);
 	info->philos[id].state = state;
-	pthread_mutex_unlock(&info->philos[id].state_lock);
+	pthread_mutex_unlock(&info->philos[id].lock);
 }
 
 int	monitor(t_info *info, t_philo *phil)
@@ -74,11 +74,11 @@ void	*phil_rot(void *arg)
 		}
 		else
 		{
-			pthread_mutex_lock(&phil->state_lock);
+			pthread_mutex_lock(&phil->lock);
 			if (phil->state == THINKING)
 				printf("%ld %d %s\n", elap_time(info), phil->id + 1, THINK);
 			phil->state = HUNGRY;
-			pthread_mutex_unlock(&phil->state_lock);
+			pthread_mutex_unlock(&phil->lock);
 			usleep(100);
 		}
 	}
