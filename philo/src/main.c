@@ -7,6 +7,7 @@ int	main(int argc, char **argv)
 
 	if (initialize(argc, argv, &info))
 		return (1);
+	printf("%d\n", info.t2s);
 	if (create_phil(&info))
 		return (3);
 	cleanup(&info);

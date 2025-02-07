@@ -13,11 +13,20 @@ void	cleanup(t_info *info)
 	free(info->philos);
 }
 
+void	state_print(t_philo *phil, char *s)
+{
+	pthread_mutex_lock(&phil->lock);
+	printf("%ld %d %s\n", phil->time, phil->id, s);
+	pthread_mutex_unlock(&phil->lock);
+}
+
 void	my_sleep(int ms, t_philo *phil)
 {
 	if (ms < 0)
 		return ;
+	pthread_mutex_lock(&phil->lock);
 	phil->time += ms;	
+	pthread_mutex_unlock(&phil->lock);
 	while (ms > 0)
 	{
 		if (ms > 1000)
