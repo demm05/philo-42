@@ -26,36 +26,42 @@ enum	e_state
 
 typedef struct s_philo
 {
-	enum e_state	state;
 	int				id;
-	int				meals;
-	long			time;
-	long			last_meal;
-	t_info			*info;
+	size_t			time;
 	pthread_t		thread;
-	pthread_mutex_t	lock;
+	pthread_mutex_t	time_lock;
+	t_info			*info;
 }	t_philo;
+
+typedef struct s_init
+{
+	bool			all_initialized;
+	int				initialized;
+	pthread_mutex_t	lock;
+}	t_init;
 
 
 typedef struct s_info
 {
-	int				num;
+	bool			is_threads_inited;
+	int				num_of_philos;
 	int				t2d;
 	int				t2e;
 	int				t2s;
-	int				iter;
-	int				dead;
-	int				min_meals;
-	long			time;
+	int				ts_to_e;
+	size_t			start;
 	pthread_mutex_t	lock;
-	t_philo			*philos;
+	t_philo			**philos;
+	t_init			*init;
 }	t_info;
 
-int		initialize(int argc, char **argv, t_info *info);
-int		create_phil(t_info *info);
-
+int		parse_argv(int argc, char **argv, t_info *info);
+int		initialize(t_info *info);
+void	*phil_routine(void *arg);
 void	cleanup(t_info *info);
-void	my_sleep(int ms, t_philo *phil);
-void	state_print(t_philo *phil, char *s);
+size_t 	get_current_time(void);
+size_t	get_print_time(t_info *info);
+void	my_sleep(t_info *info, t_philo *phil, unsigned int ms);
+void	wait_for_threads(t_init *init);
 
 #endif

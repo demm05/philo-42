@@ -1,43 +1,82 @@
 #include "../inc/philo.h"
 #include <pthread.h>
-#include <sys/time.h>
+#include <unistd.h>
+
+size_t get_current_time(void)
+{
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+    return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
+}
+
+size_t	get_print_time(t_info *info)
+{
+	return (get_current_time() - info->start);
+}
+
+void my_sleep(t_info *info, t_philo *phil, unsigned int ms)
+{
+	size_t	remaining_time;
+	size_t	temp;
+	size_t	lp;
+
+	pthread_mutex_lock(&phil->time_lock);
+	lp = phil->time;
+	phil->time += ms;
+	pthread_mutex_unlock(&phil->time_lock);
+	while (1)
+	{
+		temp = (get_current_time() - info->start) - lp;
+		if (temp > ms)
+			remaining_time = 0;
+		else
+			remaining_time = ms - temp;
+		if (remaining_time < 1000)
+			break ;
+		usleep(500000);
+	}
+	usleep(remaining_time * 1000);
+}
 
 void	cleanup(t_info *info)
 {
 	int	i;
 
-	i = 0;
-	while (i < info->num)
-		pthread_mutex_destroy(&info->philos[i++].lock);
-	pthread_mutex_destroy(&info->lock);
-	free(info->philos);
-}
-
-void	state_print(t_philo *phil, char *s)
-{
-	pthread_mutex_lock(&phil->lock);
-	printf("%ld %d %s\n", phil->time, phil->id, s);
-	pthread_mutex_unlock(&phil->lock);
-}
-
-void	my_sleep(int ms, t_philo *phil)
-{
-	if (ms < 0)
+	if (!info)
 		return ;
-	pthread_mutex_lock(&phil->lock);
-	phil->time += ms;	
-	pthread_mutex_unlock(&phil->lock);
-	while (ms > 0)
+	if (info->philos)
 	{
-		if (ms > 1000)
+		i = 0;
+		while (i < info->num_of_philos)
 		{
-			usleep(1000 * 1000);
-			ms -= 1000;
+			pthread_mutex_destroy(&info->philos[i]->time_lock);
+			free(info->philos[i++]);
 		}
-		else
+		free(info->philos);
+	}
+	if (info->init)
+	{
+		pthread_mutex_destroy(&info->init->lock);
+		free(info->init);
+	}
+	pthread_mutex_destroy(&info->lock);
+}
+
+void	wait_for_threads(t_init *init)
+{
+	pthread_mutex_lock(&init->lock);
+	init->initialized++;
+	pthread_mutex_unlock(&init->lock);
+	while (1)
+	{
+		pthread_mutex_lock(&init->lock);
+		if (init->all_initialized)
 		{
-			usleep(ms * 1000);
-			break ;
+			pthread_mutex_unlock(&init->lock);
+				return ;
 		}
+		pthread_mutex_unlock(&init->lock);
+		usleep(100);
 	}
 }
