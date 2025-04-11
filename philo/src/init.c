@@ -1,60 +1,46 @@
 #include "../inc/philo.h"
-#include <limits.h>
-#include <pthread.h>
 
-static int	init_mutexs(t_info *info)
+bool	init_mutexes(t_engine *eng)
 {
-	int	i;
-	
-	i = 0;
-	pthread_mutex_init(&info->lock, NULL);
-	pthread_mutex_init(&info->init->lock, NULL);
-	return (0);
-}
+	size_t	i;
 
-static int	init_philos(t_info *info)
-{
-	t_philo	*phil;
-	int		i;
-
+	eng->forks = malloc(sizeof(t_mutex) * eng->philos_count);
+	if (!eng->forks)
+		return (cleanup(eng, "Malloc error\n"));
 	i = 0;
-	while (i < info->num_of_philos)
+	while (i < eng->philos_count)
 	{
-		phil = malloc(sizeof(t_philo));
-		if (!phil)
-			return (1);
-		info->philos[i] = phil;
-		phil->info = info;
-		phil->id = i;
-		phil->time = 0;
-		pthread_mutex_init(&phil->time_lock, NULL);
-		pthread_create(&info->philos[i]->thread, NULL, phil_routine, info->philos[i]);
+		if (pthread_mutex_init(&eng->forks[i], NULL) != 0)
+			break ;
 		i++;
 	}
-	return (0);
+	if (i != eng->philos_count)
+		return (cleanup(eng, "Mutex init error\n"));
+	if (pthread_mutex_init(&eng->write_lock, NULL) != 0 || \
+		pthread_mutex_init(&eng->meal_lock, NULL) != 0)
+		return (cleanup(eng, "Mutex init error\n"));
+	return (true);
 }
 
-int	initialize(t_info *info)
+bool	init_philos(t_engine *eng, t_philo *philos, t_mutex *forks)
 {
-	info->philos = malloc(sizeof(t_philo *) * info->num_of_philos);
-	if (!info->philos)
-		return (1);
-	info->init = malloc(sizeof(t_init));
-	if (!info->init)
-		return (1);
-	info->init->initialized = 0;
-	info->init->all_initialized = 0;
-	if (init_mutexs(info))
+	int		i;
+	t_philo	*ph;
+
+	i = -1;
+	while (++i < eng->philos_count)
 	{
-		return (2);
+		ph = &philos[i];
+		ph->id = i + 1;
+		ph->times.die = eng->t2d;
+		ph->times.eat = eng->t2e;
+		ph->times.sleep = eng->t2s;
+		ph->times.born_time = get_current_time();
+		ph->times.time = 0;
+		ph->times.last_meal = 0;
+		ph->meals_to_eat = eng->meals_to_eat;
+		ph->meals_eaten = 0;
+		ph->mutexes.write_lock = &eng->write_lock;
+		ph->mutexes.meal_lock = &eng->meal_lock;
 	}
-	if (init_philos(info))
-	{
-		return (2);
-	}
-	pthread_mutex_lock(&info->init->lock);
-	info->start = get_current_time();
-	info->init->all_initialized = 1;
-	pthread_mutex_unlock(&info->init->lock);
-	return (0);
 }

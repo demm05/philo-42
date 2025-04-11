@@ -1,33 +1,27 @@
 #include "../inc/philo.h"
-#include <pthread.h>
 #include <unistd.h>
 
-size_t get_current_time(void)
+size_t	get_current_time(void)
 {
-    struct timeval tv;
+	struct timeval	tv;
 
-    gettimeofday(&tv, NULL);
-    return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
+	gettimeofday(&tv, NULL);
+	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
-size_t	get_print_time(t_info *info)
-{
-	return (get_current_time() - info->start);
-}
-
-void my_sleep(t_info *info, t_philo *phil, unsigned int ms)
+void	precise_sleep(t_philo *phil, unsigned int ms)
 {
 	size_t	remaining_time;
 	size_t	temp;
 	size_t	lp;
 
-	pthread_mutex_lock(&phil->time_lock);
-	lp = phil->time;
-	phil->time += ms;
-	pthread_mutex_unlock(&phil->time_lock);
+	pthread_mutex_lock(phil->mutexes.write_lock);
+	lp = phil->times.born_time;
+	phil->times.time += ms;
+	pthread_mutex_unlock(phil->mutexes.write_lock);
 	while (1)
 	{
-		temp = (get_current_time() - info->start) - lp;
+		temp = (get_current_time() - phil->times.born_time) - lp;
 		if (temp > ms)
 			remaining_time = 0;
 		else
@@ -39,44 +33,20 @@ void my_sleep(t_info *info, t_philo *phil, unsigned int ms)
 	usleep(remaining_time * 1000);
 }
 
-void	cleanup(t_info *info)
+bool	cleanup(t_engine *eng, char *message)
 {
-	int	i;
+	size_t	i;
 
-	if (!info)
-		return ;
-	if (info->philos)
+	if (eng->forks)
 	{
 		i = 0;
-		while (i < info->num_of_philos)
-		{
-			pthread_mutex_destroy(&info->philos[i]->time_lock);
-			free(info->philos[i++]);
-		}
-		free(info->philos);
+		while (i < eng->philos_count)
+			pthread_mutex_destroy(&eng->forks[i--]);
 	}
-	if (info->init)
-	{
-		pthread_mutex_destroy(&info->init->lock);
-		free(info->init);
-	}
-	pthread_mutex_destroy(&info->lock);
+	pthread_mutex_destroy(&eng->write_lock);
+	pthread_mutex_destroy(&eng->meal_lock);
+	if (message)
+		printf("%s", message);
+	return (0);
 }
 
-void	wait_for_threads(t_init *init)
-{
-	pthread_mutex_lock(&init->lock);
-	init->initialized++;
-	pthread_mutex_unlock(&init->lock);
-	while (1)
-	{
-		pthread_mutex_lock(&init->lock);
-		if (init->all_initialized)
-		{
-			pthread_mutex_unlock(&init->lock);
-				return ;
-		}
-		pthread_mutex_unlock(&init->lock);
-		usleep(100);
-	}
-}

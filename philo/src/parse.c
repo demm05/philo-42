@@ -1,7 +1,7 @@
 #include "../inc/philo.h"
 #include <limits.h>
 
-static inline int	pare_ar(int *result, char *ar)
+static inline int	pare_ar(size_t *result, char *ar)
 {
 	int		sign;
 	char	*anch;
@@ -29,24 +29,24 @@ static inline int	pare_ar(int *result, char *ar)
 	return (0);
 }
 
-int	parse_argv(int argc, char **argv, t_info *info)
+bool	parse_argv(int argc, char **argv, t_engine *eng)
 {
 	if (argc < 5)
 	{
 		printf("Please provide more arguments\n");
-		return (1);
+		return (false);
 	}
-	if (pare_ar(&info->num_of_philos, argv[1]) || \
-		pare_ar(&info->t2d, argv[2]) || \
-		pare_ar(&info->t2e, argv[3]) || \
-		pare_ar(&info->t2s, argv[4]))
-		return (2);
+	if (pare_ar(&eng->philos_count, argv[1]) || \
+		pare_ar(&eng->t2d, argv[2]) || \
+		pare_ar(&eng->t2e, argv[3]) || \
+		pare_ar(&eng->t2s, argv[4]))
+		return (false);
 	if (argc == 6)
 	{
-		if (pare_ar(&info->ts_to_e, argv[5]))
-			return (3);
+		if (pare_ar(&eng->meals_to_eat, argv[5]))
+			return (false);
 	}
 	else
-		info->ts_to_e= -1;
-	return (0);
+		eng->meals_to_eat = -1;
+	return (true);
 }
