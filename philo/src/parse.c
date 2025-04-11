@@ -1,7 +1,7 @@
 #include "../inc/philo.h"
 #include <limits.h>
 
-static inline int	pare_ar(size_t *result, char *ar)
+static inline int	pare_ar(int *result, char *ar)
 {
 	int		sign;
 	char	*anch;
@@ -20,7 +20,7 @@ static inline int	pare_ar(size_t *result, char *ar)
 	{
 		*result = *result * 10 + (*ar++ - '0');
 		if (*result > INT_MAX)
-			return (printf("Argument doesnt fit in int range\n"));
+			return (printf("Argument doesn't fit in int range\n"));
 	}
 	if (*ar)
 		return (printf("Only digits\n"));
@@ -29,24 +29,24 @@ static inline int	pare_ar(size_t *result, char *ar)
 	return (0);
 }
 
-bool	parse_argv(int argc, char **argv, t_engine *eng)
+bool	parse_argv(int argc, char **argv, t_info *info)
 {
 	if (argc < 5)
 	{
 		printf("Please provide more arguments\n");
 		return (false);
 	}
-	if (pare_ar(&eng->philos_count, argv[1]) || \
-		pare_ar(&eng->t2d, argv[2]) || \
-		pare_ar(&eng->t2e, argv[3]) || \
-		pare_ar(&eng->t2s, argv[4]))
+	if (pare_ar(&info->philosophers, argv[1]) || \
+		pare_ar(&info->die, argv[2]) || \
+		pare_ar(&info->eat, argv[3]) || \
+		pare_ar(&info->sleep, argv[4]))
 		return (false);
 	if (argc == 6)
 	{
-		if (pare_ar(&eng->meals_to_eat, argv[5]))
+		if (pare_ar(&info->meals, argv[5]))
 			return (false);
 	}
 	else
-		eng->meals_to_eat = -1;
+		info->meals = -1;
 	return (true);
 }
