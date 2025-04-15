@@ -9,53 +9,35 @@ size_t	get_current_time(void)
 	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
-/*void	precise_sleep(t_philo *phil, unsigned int ms)
-{
-	size_t	start;
-	long	temp;
-	size_t	rem;
-
-	pthread_mutex_lock(phil->mutexes.global_time);
-	pthread_mutex_lock(phil->mutexes.write);
-	start = phil->times.time;
-	if (phil->times.time < phil->info->time)
-		start = phil->info->time;
-	else if (phil->times.time == phil->info->time && \
-			!(get_current_time() - phil->times.born_time < phil->times.time + ms))
-		phil->info->time = phil->times.time + ms;
-	else
-	{
-	//	printf("\n----NEW GLOBAL TIME\n%d\t%ld\t%ld\n", phil->id, phil->info->time, phil->times.time);
-		phil->info->time = phil->times.time;
-	}
-	phil->times.time += ms;
-//	printf("id: %d\tst: %ld\tph: %ld\tgl: %ld\t", phil->id, start, phil->times.time, phil->info->time);
-	pthread_mutex_unlock(phil->mutexes.write);
-	pthread_mutex_unlock(phil->mutexes.global_time);
-	while (1)
-	{
-		temp = (get_current_time() - phil->times.born_time) - start;
-		//printf("\t\t\t%d %ld\n", phil->id, temp);
-		if (temp > ms)
-			rem = 0;
-		else
-			rem = ms - temp;
-		if (rem < 1000)
-			break ;
-		usleep(500000);
-	}
-	if (rem > 0)
-		usleep(rem * 1000);
-}*/
-
-
 void	precise_sleep(t_philo *phil, unsigned int ms)
 {
-	size_t	start;
+	size_t	diff;
+	size_t	expected_time;
+	size_t	global_time;
 
-	start = get_current_time();
-	while ((get_current_time() - start) < ms)
-		usleep(5000);
+	pthread_mutex_lock(phil->mutexes.time);
+	global_time = phil->info->time;
+	pthread_mutex_unlock(phil->mutexes.time);
+	expected_time = phil->times.born_time + global_time + ms;
+	diff = expected_time - get_current_time();
+	while (diff > 5)
+	{
+		if (diff > 500)
+			usleep(500 * 100);
+		else
+		{
+			usleep((diff - 5 ) * 100);
+			break ; 
+		}
+		diff = expected_time - get_current_time();
+	}
+	while (get_current_time() < expected_time)
+		usleep(10);
+	phil->times.time += ms;
+	pthread_mutex_lock(phil->mutexes.time);
+	if (phil->times.time > phil->info->time)
+		phil->info->time = phil->times.time;
+	pthread_mutex_unlock(phil->mutexes.time);
 }
 
 bool	cleanup(t_table *table, char *message)
@@ -66,12 +48,15 @@ bool	cleanup(t_table *table, char *message)
 	{
 		i = 0;
 		while (i < table->info.philosophers)
+		{
 			pthread_mutex_destroy(&table->forks[i++]);
+			pthread_mutex_destroy(&table->philos[i].mutexes.meal);
+		}
 	}
 	pthread_mutex_destroy(&table->lock_write);
-	pthread_mutex_destroy(&table->lock_meal);
 	pthread_mutex_destroy(&table->simulation);
-	pthread_mutex_destroy(&table->time_lock);
+	pthread_mutex_destroy(&table->lock_time);
+	pthread_mutex_destroy(&table->lock_init);
 	if (message)
 		printf("%s", message);
 	free(table->philos);
@@ -80,6 +65,7 @@ bool	cleanup(t_table *table, char *message)
 
 void	print_action(t_philo *phil, char *s)
 {
+	long	time;
 	bool	t;
 
 	//pthread_mutex_lock(phil->mutexes.simulation);
@@ -87,7 +73,8 @@ void	print_action(t_philo *phil, char *s)
 	//pthread_mutex_unlock(phil->mutexes.simulation);
 	//if (t)
 	//	return ;
-	pthread_mutex_lock(phil->mutexes.write);
-	printf("%ld %d %s\n", get_current_time() - phil->times.born_time, phil->id, s);
-	pthread_mutex_unlock(phil->mutexes.write);
+	time = get_current_time() - phil->times.born_time;
+	if (time < 0)
+		time = 0;
+	printf("%ld %d %s\n", time, phil->id, s);
 }

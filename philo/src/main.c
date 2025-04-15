@@ -10,6 +10,8 @@ int	main(int argc, char **argv)
 	ft_memset(&table.info, 0, sizeof(t_info));
 	if (!parse_argv(argc, argv, &table.info))
 		return (1);
+	table.init.to_init = table.info.philosophers;
+	table.init.lock = &table.lock_init;
 	if (!init_mutexes(&table))
 		return (2);
 	if (!init_philos(&table, table.forks, table.info.philosophers))
