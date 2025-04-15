@@ -3,7 +3,8 @@ SDIR				=	src
 ODIR				=	obj
 
 CC					=	gcc
-CFLAGS				=	-g -Wall -Wextra -I$(HDIR)
+#CFLAGS				=	-fsanitize=thread -Wall -Wextra -I$(HDIR)
+CFLAGS				=	-Wall -Wextra -I$(HDIR)
 
 NAME				=	philo
 
@@ -12,7 +13,7 @@ VPATH				=	$(SDIR):$(SDIR)/shared:$(SDIR)/push_swap:$(SDIR)/checker:$(HDIR)
 SRCS				:=	$(wildcard $(SDIR)/*.c)
 OBJS				:=	$(patsubst $(SDIR)/%.c, $(ODIR)/%.o, $(SRCS))
 
-all: $(NAME)
+all: compiledb $(NAME)
 
 $(ODIR)/%.o: $(SDIR)/%.c | $(ODIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -22,6 +23,9 @@ $(NAME): $(OBJS)
 
 $(ODIR):
 	mkdir -p $@
+
+compiledb:
+	@compiledb make -n all > /dev/null 2>&1
 
 clean:
 	@rm -rf $(ODIR)

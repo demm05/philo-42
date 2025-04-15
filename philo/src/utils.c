@@ -11,33 +11,21 @@ size_t	get_current_time(void)
 
 void	precise_sleep(t_philo *phil, unsigned int ms)
 {
-	size_t	diff;
-	size_t	expected_time;
-	size_t	global_time;
+	size_t	start;
+	size_t	elapsed;
 
-	pthread_mutex_lock(phil->mutexes.time);
-	global_time = phil->info->time;
-	pthread_mutex_unlock(phil->mutexes.time);
-	expected_time = phil->times.born_time + global_time + ms;
-	diff = expected_time - get_current_time();
-	while (diff > 5)
+	if (!is_simulation_running(phil))
+		return ;
+	start = get_current_time();
+	elapsed = 0;
+	while (elapsed < ms)
 	{
-		if (diff > 500)
-			usleep(500 * 100);
+		elapsed = get_current_time() - start;
+		if (ms - elapsed > 5)
+			usleep(1000);
 		else
-		{
-			usleep((diff - 5 ) * 100);
-			break ; 
-		}
-		diff = expected_time - get_current_time();
+			usleep(100);
 	}
-	while (get_current_time() < expected_time)
-		usleep(10);
-	phil->times.time += ms;
-	pthread_mutex_lock(phil->mutexes.time);
-	if (phil->times.time > phil->info->time)
-		phil->info->time = phil->times.time;
-	pthread_mutex_unlock(phil->mutexes.time);
 }
 
 bool	cleanup(t_table *table, char *message)
@@ -53,28 +41,39 @@ bool	cleanup(t_table *table, char *message)
 			pthread_mutex_destroy(&table->philos[i].mutexes.meal);
 		}
 	}
-	pthread_mutex_destroy(&table->lock_write);
+	pthread_mutex_destroy(&table->write);
 	pthread_mutex_destroy(&table->simulation);
-	pthread_mutex_destroy(&table->lock_time);
-	pthread_mutex_destroy(&table->lock_init);
+	pthread_mutex_destroy(&table->init.lock);
 	if (message)
 		printf("%s", message);
 	free(table->philos);
+	free(table->forks);
 	return (0);
 }
 
 void	print_action(t_philo *phil, char *s)
 {
 	long	time;
-	bool	t;
 
-	//pthread_mutex_lock(phil->mutexes.simulation);
-	//t = phil->info->simulation;
-	//pthread_mutex_unlock(phil->mutexes.simulation);
-	//if (t)
-	//	return ;
 	time = get_current_time() - phil->times.born_time;
 	if (time < 0)
 		time = 0;
-	printf("%ld %d %s\n", time, phil->id, s);
+	if (DEBUG)
+	{
+		printf("%ld %d %s\n", time, phil->id + 1, s);
+		return ;
+	}
+	pthread_mutex_lock(phil->mutexes.write);
+	if (!mutex_get_bool(&phil->info->simulation, phil->mutexes.simulation))
+	{
+		pthread_mutex_unlock(phil->mutexes.write);
+		return ;
+	}
+	printf("%ld %d %s\n", time, phil->id + 1, s);
+	pthread_mutex_unlock(phil->mutexes.write);
+}
+
+bool	is_simulation_running(t_philo *phil)
+{
+	return (mutex_get_bool(&phil->info->simulation, phil->mutexes.simulation));
 }
