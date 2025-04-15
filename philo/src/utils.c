@@ -66,15 +66,43 @@ bool	cleanup(t_table *table, char *message)
 void	print_action(t_philo *phil, char *s)
 {
 	long	time;
-	bool	t;
 
-	//pthread_mutex_lock(phil->mutexes.simulation);
-	//t = phil->info->simulation;
-	//pthread_mutex_unlock(phil->mutexes.simulation);
-	//if (t)
-	//	return ;
+	if (!mutex_get_bool(&phil->info->simulation, phil->mutexes.simulation))
+		return ;
 	time = get_current_time() - phil->times.born_time;
 	if (time < 0)
 		time = 0;
-	printf("%ld %d %s\n", time, phil->id, s);
+	printf("%ld %d %s\n", time, phil->id + 1, s);
+}
+
+bool	mutex_get_bool(bool *var, t_mutex *mutex)
+{
+	bool	res;
+
+	pthread_mutex_lock(mutex);
+	res = *var;
+	pthread_mutex_unlock(mutex);
+	return (res);
+}
+
+int	mutex_get_int(int *var, t_mutex *mutex)
+{
+	int	res;
+
+	pthread_mutex_lock(mutex);
+	res = *var;
+	pthread_mutex_unlock(mutex);
+	return (res);
+}
+
+void	mutex_set_bool(bool *var, bool value, t_mutex *mutex)
+{
+	pthread_mutex_lock(mutex);
+	*var = value;
+	pthread_mutex_unlock(mutex);
+}
+
+bool	is_simulation_running(bool *simulation, t_mutex *mutex)
+{
+	return (mutex_get_bool(simulation, mutex));
 }

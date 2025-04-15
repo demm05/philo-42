@@ -1,6 +1,6 @@
 #include "../inc/philo.h"
 
-inline static void	assign_fork(int id, int count, t_philo *ph, t_mutex *forks);
+inline static void	assign_fork(int count, t_philo *ph, t_mutex *forks);
 
 bool	init_philos(t_table *table, t_mutex *forks, int count)
 {
@@ -15,8 +15,7 @@ bool	init_philos(t_table *table, t_mutex *forks, int count)
 	{
 		ph = &table->philos[i];
 		ft_memset(ph, 0, sizeof(t_philo));
-		ft_memset(&ph->times, 0, sizeof(t_times));
-		ph->id = i + 1;
+		ph->id = i;
 		ph->info = &table->info;
 		ph->mutexes.write = &table->lock_write;
 		ph->mutexes.simulation = &table->simulation;
@@ -24,7 +23,7 @@ bool	init_philos(t_table *table, t_mutex *forks, int count)
 		ph->init = &table->init;
 		// TODO: If failed cleanup
 		pthread_mutex_init(&ph->mutexes.meal, NULL);
-		assign_fork(i, count, ph, forks);
+		assign_fork(count, ph, forks);
 	}
 	return (true);
 }
@@ -54,18 +53,24 @@ bool	init_mutexes(t_table *table)
 	return (true);
 }
 
-inline static void	assign_fork(int id, int count, t_philo *ph, t_mutex *forks)
+inline static void	assign_fork(int count, t_philo *ph, t_mutex *forks)
 {
-	if (id % 2 == 0)
-	{
-		ph->mutexes.left_fork = &forks[(id + 1) % count];
-		ph->mutexes.right_fork = &forks[id];
-		ph->can_eat = 1;
-		return ;
-	}
 	ph->can_eat = 0;
-	ph->mutexes.left_fork = &forks[id];
-	ph->mutexes.right_fork = &forks[(id + 1) % count];
+	if (ph->id % 2 == 0)
+	{
+		ph->mutexes.left_fork = &forks[(ph->id + 1) % count];
+		ph->mutexes.right_fork = &forks[ph->id];
+		if (ph->id != count - 1)
+		{
+			ph->can_eat = 1;
+			ph->is_eating = 1;
+		}
+	}
+	else
+	{
+		ph->mutexes.left_fork = &forks[ph->id];
+		ph->mutexes.right_fork = &forks[(ph->id + 1) % count];
+	}
 }
 
 void	wait_to_initialize(t_init *init)

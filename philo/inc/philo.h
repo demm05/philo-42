@@ -56,6 +56,7 @@ typedef struct s_mutexes
 typedef struct s_phil
 {
 	bool		can_eat;
+	bool		is_eating;
 	int			id;
 	int			meals_eaten;
 	t_init		*init;
@@ -90,5 +91,9 @@ bool	init_mutexes(t_table *table);
 bool	init_philos(t_table *eng, t_mutex *forks, int count);
 void	launch(t_table *eng);
 void	wait_to_initialize(t_init *init);
+bool	mutex_get_bool(bool *var, t_mutex *mutex);
+void	mutex_set_bool(bool *var, bool value, t_mutex *mutex);
+int		mutex_get_int(int *var, t_mutex *mutex);
+void	*monitor_table(void *arg);
 
 #endif

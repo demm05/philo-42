@@ -48,5 +48,10 @@ bool	parse_argv(int argc, char **argv, t_info *info)
 	}
 	else
 		info->meals = -1;
+	if (info->die <= info->eat)
+	{
+		printf("Time to die should be greater than time to eat\n");
+		return (false);
+	}
 	return (true);
 }

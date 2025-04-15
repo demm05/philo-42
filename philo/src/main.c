@@ -12,6 +12,7 @@ int	main(int argc, char **argv)
 		return (1);
 	table.init.to_init = table.info.philosophers;
 	table.init.lock = &table.lock_init;
+	table.info.simulation = 1;
 	if (!init_mutexes(&table))
 		return (2);
 	if (!init_philos(&table, table.forks, table.info.philosophers))
