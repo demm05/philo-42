@@ -37,13 +37,13 @@ bool	cleanup(t_table *table, char *message)
 		i = 0;
 		while (i < table->info.philosophers)
 		{
-			pthread_mutex_destroy(&table->forks[i++]);
-			pthread_mutex_destroy(&table->philos[i].mutexes.meal);
+			pthread_mutex_destroy(&table->forks[i]);
+			pthread_mutex_destroy(&table->philos[i++].mutexes.meal);
 		}
 	}
 	pthread_mutex_destroy(&table->write);
 	pthread_mutex_destroy(&table->simulation);
-	pthread_mutex_destroy(&table->init.lock);
+	pthread_mutex_destroy(&table->ready);
 	if (message)
 		printf("%s", message);
 	free(table->philos);

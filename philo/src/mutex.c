@@ -19,7 +19,7 @@ void	mutex_set_bool(bool *var, bool value, t_mutex *mutex)
 
 int	mutex_get_int(int *var, t_mutex *mutex)
 {
-	bool	res;
+	int	res;
 
 	pthread_mutex_lock(mutex);
 	res = *var;

@@ -32,11 +32,10 @@ void	*start_philosopher(void *arg)
 	t_philo	*phil;
 
 	phil = (t_philo *)arg;
-	//wait_to_initialize(phil->init);
-	while (!mutex_get_bool(&phil->init->is_ready, &phil->init->lock))
-		usleep(1000);
-	phil->times.born_time = get_current_time();
+	while (!mutex_get_bool(&phil->info->is_ready, phil->mutexes.ready_lock))
+		usleep(200);
 	pthread_mutex_lock(&phil->mutexes.meal);
+	phil->times.born_time = get_current_time();
 	phil->times.last_meal = get_current_time();
 	pthread_mutex_unlock(&phil->mutexes.meal);
 	while (mutex_get_bool(&phil->info->simulation, phil->mutexes.simulation))
@@ -73,7 +72,7 @@ void	launch(t_table *table)
 		if (pthread_create(&table->philos[i].thread, NULL, start_philosopher, &table->philos[i]) != 0)
 			break ;
 	}
-	mutex_set_bool(&table->init.is_ready, 1, &table->init.lock);
+	mutex_set_bool(&table->info.is_ready, 1, &table->ready);
 	i = -1;
 	while (++i < table->info.philosophers)
 		pthread_join(table->philos[i].thread, NULL);

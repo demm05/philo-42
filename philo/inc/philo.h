@@ -17,14 +17,6 @@
 
 typedef pthread_mutex_t	t_mutex;
 
-typedef struct s_init
-{
-	int		initialized;
-	int		to_init;
-	bool	is_ready;
-	t_mutex	lock;
-}	t_init;
-
 typedef struct s_info
 {
 	int		die;
@@ -33,6 +25,7 @@ typedef struct s_info
 	int		meals;
 	int		philosophers;
 	bool	simulation;
+	bool	is_ready;
 }	t_info;
 
 typedef struct s_times
@@ -47,6 +40,7 @@ typedef struct s_mutexes
 	t_mutex	*right_fork;
 	t_mutex	*write;
 	t_mutex	*simulation;
+	t_mutex	*ready_lock;
 	t_mutex	meal;
 }	t_mutexes;
 
@@ -54,7 +48,6 @@ typedef struct s_phil
 {
 	int			id;
 	int			meals_eaten;
-	t_init		*init;
 	t_info		*info;
 	t_times		times;
 	t_mutexes	mutexes;
@@ -64,8 +57,8 @@ typedef struct s_phil
 typedef struct s_table
 {
 	t_info		info;
-	t_init		init;
 	pthread_t	monitor;
+	t_mutex		ready;
 	t_mutex		write;
 	t_mutex		simulation;
 	t_mutex		*forks;
@@ -83,7 +76,6 @@ bool	parse_argv(int argc, char **argv, t_info *info);
 bool	init_mutexes(t_table *table);
 bool	init_philos(t_table *eng, t_mutex *forks, int count);
 void	launch(t_table *eng);
-void	wait_to_initialize(t_init *init);
 void	*monitor_table(void *arg);
 
 // Mutex

@@ -40,17 +40,18 @@ void	*monitor_table(void *arg)
 	int		temp;
 
 	table = (t_table *)arg;
-	while (!mutex_get_bool(&table->init.is_ready, &table->init.lock))
-		usleep(500);
+	while (!mutex_get_bool(&table->info.is_ready, &table->ready))
+		usleep(1000);
+	usleep(1000);
 	while (_is_simulation_running(table))
 	{
-		i = 0;
-		while (_is_simulation_running(table) && i < table->info.philosophers)
+		i = -1;
+		while (_is_simulation_running(table) && ++i < table->info.philosophers)
 		{
 			temp = phil_check(table, &table->philos[i]);
 			if (table->info.meals < 0)
-				continue ;
-			else if (i++ == 0)
+				;
+			else if (i == 0)
 				meals = temp;
 			else if (temp < meals)
 				meals = temp;

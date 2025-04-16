@@ -48,5 +48,8 @@ bool	parse_argv(int argc, char **argv, t_info *info)
 	}
 	else
 		info->meals = -1;
+	if (DEBUG)
+		printf("Philosophers: %d\nTime to die: %d\nTime to eat: %d\n"
+			"Time to sleep: %d\nMeals to eat: %d\n", info->philosophers, info->die, info->eat, info->sleep, info->meals);
 	return (true);
 }

@@ -7,10 +7,8 @@ int	main(int argc, char **argv)
 	t_table	table;
 
 	ft_memset(&table, 0, sizeof(t_table));
-	ft_memset(&table.info, 0, sizeof(t_info));
 	if (!parse_argv(argc, argv, &table.info))
 		return (1);
-	table.init.to_init = table.info.philosophers;
 	table.info.simulation = 1;
 	if (!init_mutexes(&table))
 		return (2);

@@ -18,9 +18,9 @@ bool	init_philos(t_table *table, t_mutex *forks, int count)
 		ft_memset(&ph->times, 0, sizeof(t_times));
 		ph->id = i;
 		ph->info = &table->info;
-		ph->init = &table->init;
 		ph->mutexes.write = &table->write;
 		ph->mutexes.simulation = &table->simulation;
+		ph->mutexes.ready_lock = &table->ready;
 		if (pthread_mutex_init(&ph->mutexes.meal, NULL) != 0)
 			return (false);
 		assign_fork(count, ph, forks);
@@ -46,7 +46,7 @@ bool	init_mutexes(t_table *table)
 		return (cleanup(table, "Mutex init error\n"));
 	if (pthread_mutex_init(&table->write, NULL) != 0 || \
 		pthread_mutex_init(&table->simulation, NULL) != 0 || \
-		pthread_mutex_init(&table->init.lock, NULL) != 0
+		pthread_mutex_init(&table->ready, NULL) != 0
 	)
 		return (cleanup(table, "Mutex init error\n"));
 	return (true);
@@ -69,27 +69,4 @@ inline static void	assign_fork(int count, t_philo *ph, t_mutex *forks)
 		printf("left:%d\tid: %d\tright: %d\n", left, id, right);
 	ph->mutexes.left_fork = &forks[left];
 	ph->mutexes.right_fork = &forks[right];
-}
-
-void	wait_to_initialize(t_init *init)
-{
-	bool	ready;
-
-	ready = 0;
-	pthread_mutex_lock(&init->lock);
-	init->initialized++;
-	if (init->initialized == init->to_init)
-	{
-		init->is_ready = 1;
-		ready = 1;
-	}
-	pthread_mutex_unlock(&init->lock);
-	while (!ready)
-	{
-		pthread_mutex_lock(&init->lock);
-		if (init->is_ready)
-			ready = 1;
-		pthread_mutex_unlock(&init->lock);
-		usleep(1000);
-	}
 }
