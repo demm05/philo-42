@@ -11,20 +11,14 @@ size_t	get_current_time(void)
 
 void	precise_sleep(t_philo *phil, unsigned int ms)
 {
-	size_t	start;
-	size_t	elapsed;
+	size_t	wake_up;
 
-	if (!is_simulation_running(phil))
-		return ;
-	start = get_current_time();
-	elapsed = 0;
-	while (elapsed < ms)
+	wake_up = get_current_time() + ms;
+	while (get_current_time() < wake_up)
 	{
-		elapsed = get_current_time() - start;
-		if (ms - elapsed > 5)
-			usleep(1000);
-		else
-			usleep(100);
+		if (!is_simulation_running(phil))
+			break ;
+		usleep(100);
 	}
 }
 
@@ -58,19 +52,9 @@ void	print_action(t_philo *phil, char *s)
 	time = get_current_time() - phil->times.born_time;
 	if (time < 0)
 		time = 0;
-	if (DEBUG)
-	{
-		printf("%ld %d %s\n", time, phil->id + 1, s);
-		return ;
-	}
-	pthread_mutex_lock(phil->mutexes.write);
 	if (!mutex_get_bool(&phil->info->simulation, phil->mutexes.simulation))
-	{
-		pthread_mutex_unlock(phil->mutexes.write);
 		return ;
-	}
 	printf("%ld %d %s\n", time, phil->id + 1, s);
-	pthread_mutex_unlock(phil->mutexes.write);
 }
 
 bool	is_simulation_running(t_philo *phil)

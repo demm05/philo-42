@@ -3,7 +3,7 @@ SDIR				=	src
 ODIR				=	obj
 
 CC					=	gcc
-CFLAGS				=	-fsanitize=thread -Wall -Wextra -Werror -I$(HDIR)
+CFLAGS				=	-Wall -Wextra -Werror -I$(HDIR)
 
 NAME				=	philo
 

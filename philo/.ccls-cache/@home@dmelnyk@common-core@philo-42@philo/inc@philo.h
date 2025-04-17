@@ -75,7 +75,7 @@ void	print_action(t_philo *phil, char *s);
 bool	parse_argv(int argc, char **argv, t_info *info);
 bool	init_mutexes(t_table *table);
 bool	init_philos(t_table *eng, t_mutex *forks, int count);
-void	launch(t_table *eng);
+bool	launch(t_table *table);
 void	*monitor_table(void *arg);
 
 // Mutex

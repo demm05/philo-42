@@ -1,14 +1,13 @@
 #include "../inc/philo.h"
 #include <limits.h>
 
-static inline int	pare_ar(int *result, char *ar)
+static inline int	pare_ar(int *dest, char *ar)
 {
+	long	res;
 	int		sign;
-	char	*anch;
 
 	sign = 1;
-	anch = ar;
-	*result = 0;
+	res = 0;
 	while (*ar == ' ' || (*ar >= 9 && *ar <= 13))
 		ar++;
 	while (*ar == '-' || *ar == '+')
@@ -18,14 +17,15 @@ static inline int	pare_ar(int *result, char *ar)
 		return (printf("Argument can't be negative\n"));
 	while (*ar >= '0' && *ar <= '9' && *ar)
 	{
-		*result = *result * 10 + (*ar++ - '0');
-		if (*result > INT_MAX)
+		res = res * 10 + (*ar++ - '0');
+		if (res > INT_MAX)
 			return (printf("Argument doesn't fit in int range\n"));
 	}
 	if (*ar)
 		return (printf("Only digits\n"));
-	if (ar != anch && *result == 0)
-		return (printf("At least one digit\n"));
+	if (res <= 0)
+		return (printf("Argume is too low\n"));
+	*dest = res;
 	return (0);
 }
 
@@ -50,6 +50,7 @@ bool	parse_argv(int argc, char **argv, t_info *info)
 		info->meals = -1;
 	if (DEBUG)
 		printf("Philosophers: %d\nTime to die: %d\nTime to eat: %d\n"
-			"Time to sleep: %d\nMeals to eat: %d\n", info->philosophers, info->die, info->eat, info->sleep, info->meals);
+			"Time to sleep: %d\nMeals to eat: %d\n", info->philosophers,
+			info->die, info->eat, info->sleep, info->meals);
 	return (true);
 }

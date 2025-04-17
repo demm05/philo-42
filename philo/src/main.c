@@ -14,7 +14,12 @@ int	main(int argc, char **argv)
 		return (2);
 	if (!init_philos(&table, table.forks, table.info.philosophers))
 		return (3);
-	launch(&table);
+	if (!launch(&table))
+	{
+		mutex_set_bool(&table.info.is_ready, 1, &table.ready);
+		mutex_set_bool(&table.info.simulation, 0, &table.simulation);
+		usleep(100);
+	}
 	cleanup(&table, NULL);
 	return (0);
 }
