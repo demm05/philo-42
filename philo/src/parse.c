@@ -24,7 +24,7 @@ static inline int	pare_ar(int *dest, char *ar)
 	if (*ar)
 		return (printf("Only digits\n"));
 	if (res <= 0)
-		return (printf("Argume is too low\n"));
+		return (printf("Argument is too low\n"));
 	*dest = res;
 	return (0);
 }

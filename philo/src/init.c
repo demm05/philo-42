@@ -66,7 +66,7 @@ inline static void	assign_fork(int count, t_philo *ph, t_mutex *forks)
 	else
 		right = (id + 1) % count;
 	if (DEBUG)
-		printf("left:%d\tid: %d\tright: %d\n", left, id, right);
+		printf("firts: %d\tid: %d\tsecond: %d\n", left, id, right);
 	ph->mutexes.first_fork = &forks[left];
 	ph->mutexes.second_fork = &forks[right];
 }

@@ -93,7 +93,7 @@ bool	launch(t_table *table)
 	while (++i < table->info.philosophers)
 	{
 		if (pthread_create(&table->philos[i].thread, NULL,
-				start_philosopher, &table->philos[i]) != 0)
+				start_philosopher, &table->philos[i]) == 0)
 			return (false);
 	}
 	mutex_set_bool(&table->info.is_ready, 1, &table->ready);

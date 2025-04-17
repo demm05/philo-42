@@ -28,7 +28,6 @@ static inline int	phil_check(t_table *table, t_philo *phil, size_t time)
 	pthread_mutex_unlock(&phil->mutexes.meal);
 	if (is_phil_dead(last_meal, &table->info, time))
 	{
-		printf("%ld\n", time - last_meal);
 		print_action(phil, DIE);
 		mutex_set_bool(&table->info.simulation, 0, &table->simulation);
 	}

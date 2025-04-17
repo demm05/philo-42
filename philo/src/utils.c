@@ -54,7 +54,9 @@ void	print_action(t_philo *phil, char *s)
 		time = 0;
 	if (!mutex_get_bool(&phil->info->simulation, phil->mutexes.simulation))
 		return ;
+	pthread_mutex_lock(phil->mutexes.write);
 	printf("%ld %d %s\n", time, phil->id + 1, s);
+	pthread_mutex_unlock(phil->mutexes.write);
 }
 
 bool	is_simulation_running(t_philo *phil)
