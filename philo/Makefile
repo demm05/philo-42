@@ -7,14 +7,14 @@ CFLAGS				=	-Wall -Wextra -Werror -I$(HDIR)
 
 NAME				=	philo
 
-VPATH				=	$(SDIR):$(SDIR)/shared:$(SDIR)/push_swap:$(SDIR)/checker:$(HDIR)
+VPATH				=	$(SDIR)
 
-SRCS				:=	$(wildcard $(SDIR)/*.c)
-OBJS				:=	$(patsubst $(SDIR)/%.c, $(ODIR)/%.o, $(SRCS))
+SRCS				=	init.c libft.c main.c monitor.c mutex.c parse.c phil.c utils.c
+OBJS				:=	$(patsubst %.c, $(ODIR)/%.o, $(SRCS))
 
-all: compiledb $(NAME)
+all: $(NAME)
 
-$(ODIR)/%.o: $(SDIR)/%.c | $(ODIR)
+$(ODIR)/%.o: %.c | $(ODIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(NAME): $(OBJS)

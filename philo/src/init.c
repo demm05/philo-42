@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dmelnyk <dmelnyk@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/17 16:09:38 by dmelnyk           #+#    #+#             */
+/*   Updated: 2025/04/17 16:09:41 by dmelnyk          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../inc/philo.h"
 
 inline static void	assign_fork(int count, t_philo *ph, t_mutex *forks);
@@ -66,7 +78,7 @@ inline static void	assign_fork(int count, t_philo *ph, t_mutex *forks)
 	else
 		right = (id + 1) % count;
 	if (DEBUG)
-		printf("firts: %d\tid: %d\tsecond: %d\n", left, id, right);
+		printf("left:%d\tid: %d\tright: %d\n", left, id, right);
 	ph->mutexes.first_fork = &forks[left];
 	ph->mutexes.second_fork = &forks[right];
 }
